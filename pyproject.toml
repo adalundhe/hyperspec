@@ -122,6 +122,9 @@ hyperspec = [
 [tool.setuptools_scm]
 version_file = "src/hyperspec/_version.py"
 parentdir_prefix_version = "hyperlight-hyperspec-"
+# PyPI forbids local version identifiers (the "+..." segment).
+# Keep dev versions (e.g. "0.1.11.dev0") but drop local segments like "+g<sha>.d<date>".
+local_scheme = "no-local-version"
 
 [tool.uv.config-settings]
 editable_mode = "compat"

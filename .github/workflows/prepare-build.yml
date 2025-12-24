@@ -58,9 +58,40 @@ jobs:
       if: inputs.run-static-analysis
       run: just hooks-check
 
+    - name: Derive version from git tag (if applicable)
+      id: tag-version
+      shell: bash
+      run: |-
+        set -euo pipefail
+
+        tag=""
+        # Release workflow: GitHub provides the release tag explicitly
+        if [[ "${{ github.event_name }}" == "release" && "${{ github.event.action }}" == "published" ]]; then
+          tag="${{ github.event.release.tag_name }}"
+        # Tag push workflow (if enabled later)
+        elif [[ "${GITHUB_REF:-}" == refs/tags/* ]]; then
+          tag="${GITHUB_REF_NAME:-}"
+        fi
+
+        # Strip common leading "v" prefix
+        tag="${tag#v}"
+
+        if [[ -n "$tag" ]]; then
+          echo "Using tag-derived version: $tag"
+        else
+          echo "No tag detected; setuptools-scm will generate a dev version."
+        fi
+
+        echo "version=$tag" >> "$GITHUB_OUTPUT"
+
     - name: Build source distribution
       id: build-sdist
       run: |-
+        # If we're building from a tag/release, force the version to match the tag.
+        # This avoids publishing dev versions to PyPI.
+        if [[ -n "${{ steps.tag-version.outputs.version }}" ]]; then
+          export SETUPTOOLS_SCM_PRETEND_VERSION="${{ steps.tag-version.outputs.version }}"
+        fi
         uv build --sdist
         sdist_name=$(basename dist/*.tar.gz)
         echo "file-name=${sdist_name}" >> $GITHUB_OUTPUT
