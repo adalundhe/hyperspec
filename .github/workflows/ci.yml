@@ -1,39 +1,6 @@
 name: Build and Test
 
-on:
-  push:
-    branches:
-    - main
-  pull_request:
-    branches:
-    - main
-    paths:
-    # Changes to the package itself
-    - src/hyperspec/**
-    - pyproject.toml
-    - setup.py
-    - MANIFEST.in
-    # Changes to CI execution
-    - .github/workflows/ci.yml
-    - .github/workflows/prepare-build.yml
-    - .github/workflows/build-wheels.yml
-    - .github/workflows/profile.yml
-    - .github/actions/latest-supported-python/action.yml
-    - .github/actions/fetch-release-history/action.yml
-    - .github/actions/load-env/action.yml
-    - .cibuildwheel.toml
-    - .justfile
-    # Changes to testing
-    - tests/**
-    - .codecov.yml
-    - .codespellrc
-    - .coveragerc
-    - .pre-commit-config.yaml
-    - .pytest.toml
-    - .ruff.toml
-  release:
-    types:
-    - published
+on: push
 
 jobs:
   prepare:
