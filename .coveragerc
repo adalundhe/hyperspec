@@ -1,0 +1,17 @@
+[run]
+source_pkgs =
+    hyperspec
+source_dirs =
+    tests/unit
+omit =
+    src/hyperspec/_version.py
+
+[paths]
+hyperspec =
+    src/hyperspec
+    */hyperspec/src/hyperspec
+    */hyperspec/dev/*/venvs/*/lib*/python*/site-packages/hyperspec
+    *\hyperspec\dev\*\venvs\*\Lib\site-packages\hyperspec
+tests =
+    tests/unit
+    */hyperspec/tests/unit

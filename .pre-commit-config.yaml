@@ -1,0 +1,45 @@
+local: &local
+  language: system
+  pass_filenames: true
+
+local-pre-commit: &local-pre-commit
+  <<: *local
+  require_serial: true
+  stages: [pre-commit]
+local-manual: &local-manual
+  <<: *local
+  stages: [manual]
+
+repos:
+- repo: local
+  hooks:
+  # These default hooks apply fixes.
+  - id: python-lint
+    name: Lint Python code
+    entry: ruff check --fix
+    files: "\\.(py|pyi)$"
+    <<: *local-pre-commit
+  - id: python-format
+    name: Format Python code
+    entry: ruff format
+    files: "\\.(py|pyi)$"
+    <<: *local-pre-commit
+
+  # These manual hooks suffixed with `-check` run their equivalently named default hooks without applying fixes.
+  - id: python-lint-check
+    name: Lint Python code (check-only)
+    entry: ruff check
+    files: "\\.(py|pyi)$"
+    <<: *local-manual
+  - id: python-format-check
+    name: Format Python code (check-only)
+    entry: ruff format --diff
+    files: "\\.(py|pyi)$"
+    <<: *local-manual
+
+  # These hooks never apply fixes and run in all cases.
+  - id: spelling
+    name: Check for spelling errors
+    entry: codespell
+    files: "\\.(py|pyi|c|h|rst|md|toml|yml|yaml|txt)$"
+    <<: *local
