@@ -12,19 +12,6 @@ outputs:
 runs:
   using: composite
   steps:
-  - name: Fetch latest release on GitHub
-    id: latest-release
-    env:
-      GH_TOKEN: ${{ inputs.github-token }}
-    shell: bash
-    run: |-
-      latest_release=$(
-        gh api "repos/${{ github.repository }}/releases/latest" \
-          --jq '.tag_name'
-      )
-      echo "Latest release: $latest_release"
-      echo "tag=$latest_release" >> $GITHUB_OUTPUT
-
   - name: Fetch latest release on PyPI
     id: python-version
     shell: bash
