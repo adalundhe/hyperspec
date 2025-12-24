@@ -159,7 +159,6 @@ jobs:
 
   upload-pypi:
     name: Upload artifacts to PyPI
-    if: github.event_name == 'release' && github.event.action == 'published'
     needs:
     - prepare
     - build-wheels
