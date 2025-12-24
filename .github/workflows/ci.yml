@@ -159,7 +159,7 @@ jobs:
 
   upload-pypi:
     name: Upload artifacts to PyPI
-    if: github.event_name == 'release' && github.event.action == 'published'
+    if: "startsWith(github.ref, 'refs/tags/')"
     needs:
     - prepare
     - build-wheels
@@ -175,7 +175,6 @@ jobs:
         path: dist
 
     - name: Publish distribution to PyPI
-      if: "startsWith(github.ref, 'refs/tags/')"
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         attestations: true
