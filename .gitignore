@@ -63,3 +63,4 @@ pip-wheel-metadata/
 out/
 .cache/
 .DS_Store
+*.log
