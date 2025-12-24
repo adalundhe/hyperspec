@@ -191,23 +191,50 @@ The full benchmark source can be found `here
 
 **Results (smaller is better):**
 
-+---------------------+--------------+------+-----------+------+
-|                     | memory (MiB) | vs.  | time (ms) | vs.  |
-+=====================+==============+======+===========+======+
-| **hyperspec structs** | 67.6         | 1.0x | 176.8     | 1.0x |
-+---------------------+--------------+------+-----------+------+
-| **hyperspec**         | 218.3        | 3.2x | 630.5     | 3.6x |
-+---------------------+--------------+------+-----------+------+
-| **json**            | 295.0        | 4.4x | 868.6     | 4.9x |
-+---------------------+--------------+------+-----------+------+
-| **ujson**           | 349.1        | 5.2x | 1087.0    | 6.1x |
-+---------------------+--------------+------+-----------+------+
-| **rapidjson**       | 375.0        | 5.6x | 1004.0    | 5.7x |
-+---------------------+--------------+------+-----------+------+
-| **orjson**          | 406.3        | 6.0x | 691.7     | 3.9x |
-+---------------------+--------------+------+-----------+------+
-| **simdjson**        | 603.2        | 8.9x | 1053.0    | 6.0x |
-+---------------------+--------------+------+-----------+------+
+.. list-table::
+   :header-rows: 1
+   :widths: 22 12 5 10 5
+
+   * - library
+     - memory (MiB)
+     - vs.
+     - time (ms)
+     - vs.
+   * - hyperspec structs
+     - 67.6
+     - 1.0x
+     - 176.8
+     - 1.0x
+   * - hyperspec
+     - 218.3
+     - 3.2x
+     - 630.5
+     - 3.6x
+   * - json
+     - 295.0
+     - 4.4x
+     - 868.6
+     - 4.9x
+   * - ujson
+     - 349.1
+     - 5.2x
+     - 1087.0
+     - 6.1x
+   * - rapidjson
+     - 375.0
+     - 5.6x
+     - 1004.0
+     - 5.7x
+   * - orjson
+     - 406.3
+     - 6.0x
+     - 691.7
+     - 3.9x
+   * - simdjson
+     - 603.2
+     - 8.9x
+     - 1053.0
+     - 6.0x
 
 - ``hyperspec`` decoding into :doc:`Struct <structs>` types uses the least amount of
   memory, and is also the fastest to decode. This makes sense; ``Struct`` types
@@ -256,19 +283,40 @@ The full benchmark source can be found `here
 
 **Results (smaller is better):**
 
-+----------------------+-------------+-------------+---------------+------------+
-|                      | import (μs) | create (μs) | equality (μs) | order (μs) |
-+======================+=============+=============+===============+============+
-| **hyperspec**          | 12.51       | 0.09        | 0.02          | 0.03       |
-+----------------------+-------------+-------------+---------------+------------+
-| **standard classes** | 7.88        | 0.35        | 0.08          | 0.16       |
-+----------------------+-------------+-------------+---------------+------------+
-| **attrs**            | 483.10      | 0.37        | 0.14          | 1.87       |
-+----------------------+-------------+-------------+---------------+------------+
-| **dataclasses**      | 506.09      | 0.36        | 0.14          | 0.16       |
-+----------------------+-------------+-------------+---------------+------------+
-| **pydantic**         | 673.47      | 1.54        | 0.60          | N/A        |
-+----------------------+-------------+-------------+---------------+------------+
+.. list-table::
+   :header-rows: 1
+   :widths: 22 10 10 12 10
+
+   * - library
+     - import (μs)
+     - create (μs)
+     - equality (μs)
+     - order (μs)
+   * - hyperspec
+     - 12.51
+     - 0.09
+     - 0.02
+     - 0.03
+   * - standard classes
+     - 7.88
+     - 0.35
+     - 0.08
+     - 0.16
+   * - attrs
+     - 483.10
+     - 0.37
+     - 0.14
+     - 1.87
+   * - dataclasses
+     - 506.09
+     - 0.36
+     - 0.14
+     - 0.16
+   * - pydantic
+     - 673.47
+     - 1.54
+     - 0.60
+     - N/A
 
 - Standard Python classes are the fastest to import (any library can only add
   overhead here). Still, ``hyperspec`` isn't *that* much slower, especially
@@ -303,17 +351,25 @@ The full benchmark source can be found `here
 
 **Results (smaller is better):**
 
-+-----------------------------------+--------------+-------------------+
-|                                   | GC time (ms) | Memory Used (MiB) |
-+===================================+==============+===================+
-| **standard class**                | 80.46        | 211.66            |
-+-----------------------------------+--------------+-------------------+
-| **standard class with __slots__** | 80.06        | 120.11            |
-+-----------------------------------+--------------+-------------------+
-| **hyperspec struct**                | 13.96        | 120.11            |
-+-----------------------------------+--------------+-------------------+
-| **hyperspec struct with gc=False**  | 1.07         | 104.85            |
-+-----------------------------------+--------------+-------------------+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 12 16
+
+   * - type
+     - GC time (ms)
+     - Memory Used (MiB)
+   * - standard class
+     - 80.46
+     - 211.66
+   * - standard class with ``__slots__``
+     - 80.06
+     - 120.11
+   * - hyperspec struct
+     - 13.96
+     - 120.11
+   * - hyperspec struct with ``gc=False``
+     - 1.07
+     - 104.85
 
 - Standard Python classes are the most memory hungry (since all data is stored
   in an instance dict). They also result in the largest GC pause, as the GC has
@@ -346,13 +402,22 @@ The full benchmark source can be found `here
 
 **Results (smaller is better)**
 
-+--------------+---------+------------+-------------+
-|              | version | size (MiB) | vs. hyperspec |
-+==============+=========+============+=============+
-| **hyperspec**  | 0.18.4  | 0.46       | 1.00x       |
-+--------------+---------+------------+-------------+
-| **pydantic** | 2.5.2   | 6.71       | 14.66x      |
-+--------------+---------+------------+-------------+
+.. list-table::
+   :header-rows: 1
+   :widths: 16 10 12 14
+
+   * - library
+     - version
+     - size (MiB)
+     - vs. hyperspec
+   * - hyperspec
+     - 0.18.4
+     - 0.46
+     - 1.00x
+   * - pydantic
+     - 2.5.2
+     - 6.71
+     - 14.66x
 
 For applications where dependency size matters, ``hyperspec`` is roughly 15x
 smaller on disk.

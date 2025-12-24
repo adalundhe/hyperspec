@@ -1,5 +1,5 @@
 Why hyperspec?
-------------
+--------------
 
 If you're writing a networked application, you'll need some agreed upon
 protocol that your clients and servers can use to communicate. JSON is a decent

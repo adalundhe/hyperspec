@@ -1,5 +1,5 @@
 hyperspec
-=======
+=========
 
 ``hyperspec`` is a *fast* serialization and validation library, with builtin
 support for JSON_, MessagePack_, YAML_, and TOML_. It features:

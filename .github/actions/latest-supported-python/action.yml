@@ -31,32 +31,44 @@ runs:
     run: |-
       set -euo pipefail
 
+      # NOTE: Distribution name on PyPI differs from import name.
+      # Import name: hyperspec
+      # PyPI name: hyperlight-hyperspec
+      pypi_project="hyperlight-hyperspec"
+      # Fallback: if PyPI lookup fails (e.g. package not yet published), use the
+      # latest supported Python version from this repo's test matrix.
+      fallback_python_version="3.14"
+
       release_event='${{ github.event_name == 'release' && github.event.action == 'published' }}'
       if [[ "$release_event" == 'true' ]]; then
         echo "Release workflow detected; selecting the latest stable version already available on PyPI."
+        if ! releases_json="$(curl -fsS "https://pypi.org/pypi/${pypi_project}/json")"; then
+          echo "WARN: Failed to query PyPI for ${pypi_project}; falling back to ${fallback_python_version}" >&2
+          echo "version=${fallback_python_version}" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+
         version=$(
-          curl -fsS "https://pypi.org/pypi/hyperspec/json" \
-            | jq -r '
-              .releases
-              | to_entries
-              | map(
-                  select(
-                    [ .value[]
-                        | select(.packagetype == "bdist_wheel")
-                    ] | length > 0
-                  )
+          echo "$releases_json" | jq -r '
+            .releases
+            | to_entries
+            | map(
+                select(
+                  [ .value[]
+                      | select(.packagetype == "bdist_wheel")
+                  ] | length > 0
                 )
-              | map(select(.key | test("(a|b|rc)"; "i") | not))
-              | map(.key)
-              | .[]
-            ' \
-            | sort -V \
-            | tail -n 1
+              )
+            | map(select(.key | test("(a|b|rc)"; "i") | not))
+            | map(.key)
+            | .[]
+          ' | sort -V | tail -n 1
         )
 
         if [[ -z "$version" ]]; then
-          echo "Failed to find a stable PyPI release with wheels" >&2
-          exit 1
+          echo "WARN: Failed to find a stable PyPI release with wheels; falling back to ${fallback_python_version}" >&2
+          echo "version=${fallback_python_version}" >> $GITHUB_OUTPUT
+          exit 0
         fi
 
         echo "Selected PyPI release: $version"
@@ -65,22 +77,35 @@ runs:
         echo "Selected GitHub release: $version"
       fi
 
-      pypi_url="https://pypi.org/pypi/hyperspec/$version/json"
+      pypi_url="https://pypi.org/pypi/${pypi_project}/$version/json"
 
-      python_version=$(
-        curl -fsS "$pypi_url" \
-          | jq -r '
-            .urls
-            | [ .[]
-                | select(.packagetype == "bdist_wheel")
-                | .filename
-                | capture("cp(?<cp>[0-9]+)").cp
-                | tonumber
-              ]
-            | max
-            | "3.\(tostring | .[1:])"
-          '
-      )
+      if ! release_json="$(curl -fsS "$pypi_url")"; then
+        echo "WARN: Failed to query ${pypi_url}; falling back to ${fallback_python_version}" >&2
+        python_version="${fallback_python_version}"
+      else
+        python_version=$(
+          echo "$release_json" \
+            | jq -r '
+              .urls
+              | [ .[]
+                  | select(.packagetype == "bdist_wheel")
+                  | .filename
+                  | capture("cp(?<cp>[0-9]+)").cp
+                  | tonumber
+                ]
+              | max
+              | if . == null then
+                  empty
+                else
+                  "3.\(tostring | .[1:])"
+                end
+            '
+        )
+        if [[ -z "${python_version}" ]]; then
+          echo "WARN: No bdist_wheel URLs found for ${pypi_url}; falling back to ${fallback_python_version}" >&2
+          python_version="${fallback_python_version}"
+        fi
+      fi
 
       echo "Python version: $python_version"
       echo "version=$python_version" >> $GITHUB_OUTPUT
